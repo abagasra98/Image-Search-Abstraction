@@ -1,9 +1,10 @@
 var express = require('express');
 var mongo = require('mongodb').MongoClient;
+var bing = require('node-bing-api') ({accKey: process.env.BING_API_KEY})
 const path = require('path');
 
 var app = express();
-const url = process.env.MONGOLAB_URI
+const url = process.env.MONGOLAB_URI;
 
 app.set('port', (process.env.PORT || 8080));
 
@@ -13,9 +14,17 @@ app.get('/', function(req, res) {
 });
 
 app.get('/api/imagesearch/', function(req, res) {
-  console.log('Query: ' + req.query.q);
-  console.log('Offset: ' + req.query.offset); // req.query.offset != undefined;
-  res.send(req.path);
+  var offset = (req.query.offset != undefined) ? req.query.offset : 10;
+  bing.images(req.query.q, {top: offset}, function(err, response, body) {
+    var responseArray = []
+    for (var i = 0; i < body.value.length; i++) {
+      var image = body.value[i]
+      responseArray.push({url: image.contentUrl, snippet: image.name,
+         thumbnail: image.thumbnailUrl, context: image.hostPageDisplayUrl});
+    }
+    logSearch(req.query.q);
+    res.json(responseArray);
+  });
 });
 
 app.get('/api/latest/imagesearch/', function(req, res) {
@@ -31,25 +40,19 @@ app.get('/api/latest/imagesearch/', function(req, res) {
   });
 });
 
-// INSERT CODE
-// collection.insert(document, function(err, data) {
-//   if (err) throw err;
-//   console.log('Document successfully inserted into document');
-//   db.close();
-// })
-
-
 app.listen(app.get('port'), function() {
   console.log('Image search app listening on port ' + app.get('port'));
 });
 
-String.prototype.hashCode = function(){
-	var hash = 0;
-	if (this.length == 0) return hash;
-	for (i = 0; i < this.length; i++) {
-		char = this.charCodeAt(i);
-		hash = ((hash<<5)-hash)+char;
-		hash = hash & hash; // Convert to 32bit integer
-	}
-	return hash;
+function logSearch(queryTerm) {
+  mongo.connect(url, function(err, db) {
+    if (err) throw err;
+    var document = {query: queryTerm, time: Math.floor(new Date().getTime()/1000)};
+    var collection = db.collection('searches');
+    collection.insert(document, function(err, data) {
+      if (err) throw err;
+      console.log("Document was successfully inserted into database");
+      db.close();
+    });
+  });
 }
