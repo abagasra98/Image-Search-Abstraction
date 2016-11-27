@@ -30,7 +30,6 @@ app.get('/api/imagesearch/', function(req, res) {
 app.get('/api/latest/imagesearch/', function(req, res) {
   mongo.connect(url, function(err, db) {
     if (err) throw err;
-    var document = {_id: 'test'.hashCode(), query: 'test', time: Math.floor(new Date().getTime()/1000)};
     var collection = db.collection('searches');
     collection.find({ }, {_id: 0}).toArray(function(err, docs) {
       if (err) throw err;
