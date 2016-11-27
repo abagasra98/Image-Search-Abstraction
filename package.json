@@ -1,0 +1,25 @@
+{
+  "name": "image-search-abstraction",
+  "version": "1.0.0",
+  "description": "Image Search Abstraction Layer project for FCC's backend certification.",
+  "main": "server.js",
+  "engines": {
+    "node": "6.5.0"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "4.14.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/abagasra98/Image-Search-Abstraction.git"
+  },
+  "author": "abagasra98",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/abagasra98/Image-Search-Abstraction/issues"
+  },
+  "homepage": "https://github.com/abagasra98/Image-Search-Abstraction#readme"
+}
